@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Pic Dispatch System - 4 Categories</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        msBlue: {
+                            DEFAULT: '#0078d4',
+                            hover: '#005a9e',
+                            light: '#e1effe',
+                            dark: '#004578'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+            background-color: #f3f2f1;
+        }
+        .active-tab {
+            border-bottom: 3px solid #0078d4;
+            color: #0078d4;
+            font-weight: 700;
+            background-color: #ffffff;
+        }
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-touch {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-10 text-slate-800">
+
+    <!-- Top Header -->
+    <header class="bg-msBlue text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-md md:max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid font-bold text-xl md:text-2xl fa-truck-ramp-box"></i>
+                <div>
+                    <h1 class="font-semibold text-lg md:text-xl leading-tight">Despatch Export Dispatch</h1>
+                    <p class="text-xs text-blue-100 opacity-90">OneDrive Photo Management System</p>
+                </div>
+            </div>
+            <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full font-mono font-medium" id="currentDateBadge">--/--/----</span>
+        </div>
+
+        <!-- 4-Screen Navigation Tabs -->
+        <div class="bg-slate-100 border-b border-slate-300 text-slate-600 text-xs md:text-sm font-medium">
+            <div class="max-w-md md:max-w-3xl mx-auto grid grid-cols-4 text-center cursor-pointer">
+                <button onclick="switchTab('lot')" id="tab-lot" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1 active-tab">
+                    <i class="fa-solid fa-boxes-stacked text-base"></i>
+                    <span class="truncate">Lot Pic</span>
+                </button>
+                <button onclick="switchTab('empty')" id="tab-empty" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1">
+                    <i class="fa-solid fa-box text-base"></i>
+                    <span class="truncate">Empty Container</span>
+                </button>
+                <button onclick="switchTab('loaded')" id="tab-loaded" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1">
+                    <i class="fa-solid fa-truck-flatbed text-base"></i>
+                    <span class="truncate">Loaded Container</span>
+                </button>
+                <button onclick="switchTab('gasket')" id="tab-gasket" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1">
+                    <i class="fa-solid fa-shield-halved text-base"></i>
+                    <span class="truncate">Container Gasket</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md md:max-w-2xl mx-auto mt-4 px-4">
+        
+        <!-- Hidden Global File Inputs -->
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+        <input type="file" id="galleryInput" multiple accept="image/*" class="hidden">
+
+        <!-- SCREEN 1: LOT PIC -->
+        <section id="screen-lot" class="tab-screen">
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="mb-4 pb-3 border-b border-slate-100">
+                    <label for="lotNo" class="block font-semibold text-slate-700 text-sm mb-1.5">
+                        <i class="fa-solid fa-boxes-stacked text-msBlue mr-1"></i> Lot Number (लॉट नंबर):
+                    </label>
+                    <input type="text" id="lotNo" placeholder="e.g. LOT-102938" 
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">1</span>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base">Lot Pic Upload</h2>
+                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-amber-800">Export Pic / Lot Pic</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <button type="button" onclick="triggerCamera('lot')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-camera text-base"></i>
+                        <span>Take Camera Photo</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('lot')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-images text-base"></i>
+                        <span>Gallery Select</span>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
+                        <span id="photoCount-lot" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
+                    </div>
+                    <div id="previewGrid-lot" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
+                    </div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('lot')" id="submitBtn-lot" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload to Lot Pic Folder</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: EMPTY CONTAINER PIC -->
+        <section id="screen-empty" class="tab-screen hidden">
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="mb-4 pb-3 border-b border-slate-100">
+                    <label for="containerNo-empty" class="block font-semibold text-slate-700 text-sm mb-1.5">
+                        <i class="fa-solid fa-truck text-msBlue mr-1"></i> Container Number (कंटेनर नंबर):
+                    </label>
+                    <input type="text" id="containerNo-empty" placeholder="e.g. TRKU9876543 / RJ19GE1234" 
+                        oninput="syncContainerNo(this.value)"
+                        class="container-no-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">2</span>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base">Empty Container Pic Upload</h2>
+                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-blue-800">Export Pic / Empty Container Pic</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <button type="button" onclick="triggerCamera('empty')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-camera text-base"></i>
+                        <span>Take Camera Photo</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('empty')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-images text-base"></i>
+                        <span>Gallery Select</span>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
+                        <span id="photoCount-empty" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
+                    </div>
+                    <div id="previewGrid-empty" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
+                    </div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('empty')" id="submitBtn-empty" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload to Empty Container Folder</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: LOADED CONTAINER PIC -->
+        <section id="screen-loaded" class="tab-screen hidden">
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="mb-4 pb-3 border-b border-slate-100">
+                    <label for="containerNo-loaded" class="block font-semibold text-slate-700 text-sm mb-1.5">
+                        <i class="fa-solid fa-truck text-msBlue mr-1"></i> Container Number (कंटेनर नंबर):
+                    </label>
+                    <input type="text" id="containerNo-loaded" placeholder="e.g. TRKU9876543 / RJ19GE1234" 
+                        oninput="syncContainerNo(this.value)"
+                        class="container-no-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">3</span>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base">Loaded Container Pic Upload</h2>
+                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-indigo-800">Export Pic / Loaded Container Pic</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <button type="button" onclick="triggerCamera('loaded')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-camera text-base"></i>
+                        <span>Take Camera Photo</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('loaded')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-images text-base"></i>
+                        <span>Gallery Select</span>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
+                        <span id="photoCount-loaded" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
+                    </div>
+                    <div id="previewGrid-loaded" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
+                    </div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('loaded')" id="submitBtn-loaded" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload to Loaded Container Folder</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: CONTAINER GASKET PIC -->
+        <section id="screen-gasket" class="tab-screen hidden">
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="mb-4 pb-3 border-b border-slate-100">
+                    <label for="containerNo-gasket" class="block font-semibold text-slate-700 text-sm mb-1.5">
+                        <i class="fa-solid fa-truck text-msBlue mr-1"></i> Container Number (कंटेनर नंबर):
+                    </label>
+                    <input type="text" id="containerNo-gasket" placeholder="e.g. TRKU9876543 / RJ19GE1234" 
+                        oninput="syncContainerNo(this.value)"
+                        class="container-no-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm">4</span>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base">Container Gasket Pic Upload</h2>
+                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-teal-800">Export Pic / Container Gasket Pic</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <button type="button" onclick="triggerCamera('gasket')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-camera text-base"></i>
+                        <span>Take Camera Photo</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('gasket')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-images text-base"></i>
+                        <span>Gallery Select</span>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
+                        <span id="photoCount-gasket" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
+                    </div>
+                    <div id="previewGrid-gasket" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
+                    </div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('gasket')" id="submitBtn-gasket" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload to Gasket Folder</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Status Message Alert Box -->
+        <div id="statusMessage" class="hidden mt-4 p-4 rounded-xl text-sm font-medium transition-all shadow-md"></div>
+
+    </main>
+
+    <script>
+        // Dedicated Webhook URLs for 4 Separate Power Automate Flows
+        const WEBHOOK_URLS = {
+            'lot': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/12/workflows/bd269a4140c941afb3c5161741aa6acc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Y2GLVqrjxvNXGqnxLQz_pvo9i_hM51FDlLrY82kpm_Q",
+            'empty': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/26/workflows/19f5740b6caa43bd87d2ec8857429157/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=dwMjbqODAZ7l8jwU0rFB729vZnE11yQB2ZVJ44gPbcM",
+            'loaded': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/19/workflows/922d3c76ffc74d61914b765ff74365cb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LeaWHNLRnW0JdX9fvPTmIdIHclBa4E3_daPpoZuX3Ro",  // Flow 3 ka URL yahan paste karein
+            'gasket': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/331defa6578a404382985ca428dce473/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Fq5eC1UZGbxkIwfpruSBnd7fGB7_gmmokpNxiVVvF1Y"   // Flow 4 ka URL yahan paste karein
+        };
+
+        // Sync Container Number input across screens 2, 3, 4
+        function syncContainerNo(val) {
+            document.querySelectorAll('.container-no-input').forEach(input => {
+                input.value = val.toUpperCase();
+            });
+        }
+
+        // Map key names to OneDrive exact folder names
+        const FOLDER_TYPES = {
+            'lot': 'Lot Pic',
+            'empty': 'Empty Container Pic',
+            'loaded': 'Loaded Container Pic',
+            'gasket': 'Container Gasket Pic'
+        };
+
+        // File State Store per Category Screen
+        const fileStore = {
+            'lot': [],
+            'empty': [],
+            'loaded': [],
+            'gasket': []
+        };
+
+        let activeCategoryKey = 'lot';
+
+        // DOM Inputs
+        const cameraInput = document.getElementById('cameraInput');
+        const galleryInput = document.getElementById('galleryInput');
+        const statusMessage = document.getElementById('statusMessage');
+
+        function getFormattedDate() {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            return `${dd}-${mm}-${yyyy}`;
+        }
+
+        function getFormattedDateTimeForFile() {
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            return `${dd}-${mm}-${yyyy}_${hh}-${min}`;
+        }
+
+        // Set Date Badge on Header Load
+        document.getElementById('currentDateBadge').innerText = getFormattedDate();
+
+        // Screen Tab Switcher
+        function switchTab(key) {
+            activeCategoryKey = key;
+            
+            document.querySelectorAll('.tab-screen').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`screen-${key}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+            document.getElementById(`tab-${key}`).classList.add('active-tab');
+
+            hideStatus();
+        }
+
+        function triggerCamera(key) {
+            activeCategoryKey = key;
+            cameraInput.click();
+        }
+
+        function triggerGallery(key) {
+            activeCategoryKey = key;
+            galleryInput.click();
+        }
+
+        async function processTo500KB(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let canvas = document.createElement('canvas');
+                        let ctx = canvas.getContext('2d');
+
+                        let maxDimension = 2048;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxDimension) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            }
+                        } else {
+                            if (height > maxDimension) {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        let minQuality = 0.5;
+                        let maxQuality = 0.95;
+                        let targetQuality = 0.88;
+                        let bestBlob = null;
+
+                        const generateBlob = (q) => {
+                            return new Promise(res => canvas.toBlob(res, 'image/jpeg', q));
+                        };
+
+                        (async () => {
+                            for (let i = 0; i < 4; i++) {
+                                let blob = await generateBlob(targetQuality);
+                                bestBlob = blob;
+                                let sizeKB = blob.size / 1024;
+
+                                if (sizeKB > 550) {
+                                    maxQuality = targetQuality;
+                                    targetQuality = (minQuality + maxQuality) / 2;
+                                } else if (sizeKB < 450 && targetQuality < 0.95) {
+                                    minQuality = targetQuality;
+                                    targetQuality = (minQuality + maxQuality) / 2;
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            let finalSizeKB = Math.round(bestBlob.size / 1024);
+                            let previewUrl = URL.createObjectURL(bestBlob);
+                            resolve({ blob: bestBlob, sizeKB: finalSizeKB, previewUrl });
+                        })();
+                    };
+                };
+            });
+        }
+
+        // Camera Input Event
+        cameraInput.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                showStatus('Photo ~500KB me optimize ho rahi hai...', 'loading');
+                const processed = await processTo500KB(e.target.files[0]);
+                fileStore[activeCategoryKey].push(processed);
+                renderPreviews(activeCategoryKey);
+                cameraInput.value = '';
+                hideStatus();
+            }
+        });
+
+        // Gallery Input Event
+        galleryInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                showStatus('Photos ~500KB me optimize ho rahi hain...', 'loading');
+                for (let file of files) {
+                    if (file.type.startsWith('image/')) {
+                        const processed = await processTo500KB(file);
+                        fileStore[activeCategoryKey].push(processed);
+                    }
+                }
+                renderPreviews(activeCategoryKey);
+                galleryInput.value = '';
+                hideStatus();
+            }
+        });
+
+        function renderPreviews(key) {
+            const grid = document.getElementById(`previewGrid-${key}`);
+            const countBadge = document.getElementById(`photoCount-${key}`);
+            const list = fileStore[key];
+
+            grid.innerHTML = '';
+
+            let totalKB = list.reduce((acc, curr) => acc + curr.sizeKB, 0);
+            let totalMB = (totalKB / 1024).toFixed(2);
+
+            countBadge.innerText = `${list.length} Photos (~${totalMB} MB Total)`;
+
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-4 text-center text-slate-400 text-xs">
+                        No photos captured yet. Click Camera or Gallery button above.
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-white shadow-xs';
+                div.innerHTML = `
+                    <img src="${item.previewUrl}" class="w-full h-full object-cover">
+                    <span class="absolute bottom-1 left-1 bg-black/75 text-white text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">${item.sizeKB} KB</span>
+                    <button type="button" onclick="removeFile('${key}', ${index})" 
+                        class="absolute top-1 right-1 bg-red-600/90 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md">
+                        ✕
+                    </button>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function removeFile(key, index) {
+            fileStore[key].splice(index, 1);
+            renderPreviews(key);
+        }
+
+        function showStatus(message, type) {
+            statusMessage.className = 'mt-4 p-4 rounded-xl text-sm font-medium transition-all shadow-md ';
+            if (type === 'success') {
+                statusMessage.className += 'bg-emerald-50 border border-emerald-300 text-emerald-800';
+            } else if (type === 'error') {
+                statusMessage.className += 'bg-rose-50 border border-rose-300 text-rose-800';
+            } else {
+                statusMessage.className += 'bg-sky-50 border border-sky-300 text-sky-800 animate-pulse';
+            }
+            statusMessage.innerHTML = message;
+            statusMessage.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            statusMessage.classList.add('hidden');
+        }
+
+        async function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function uploadCategory(key) {
+            const targetWebhookUrl = WEBHOOK_URLS[key];
+
+            if (!targetWebhookUrl) {
+                alert(`Is screen ('${FOLDER_TYPES[key]}') ka Flow Webhook URL add nahi kiya gaya hai! Kripya code me URL enter karein.`);
+                return;
+            }
+
+            let identifierNo = "";
+
+            if (key === 'lot') {
+                identifierNo = document.getElementById('lotNo').value.trim().toUpperCase();
+                if (!identifierNo) {
+                    alert('Kripya Lot Number enter karein!');
+                    document.getElementById('lotNo').focus();
+                    return;
+                }
+            } else {
+                identifierNo = document.getElementById(`containerNo-${key}`).value.trim().toUpperCase();
+                if (!identifierNo) {
+                    alert('Kripya Container Number enter karein!');
+                    document.getElementById(`containerNo-${key}`).focus();
+                    return;
+                }
+            }
+
+            const currentFiles = fileStore[key];
+
+            if (currentFiles.length === 0) {
+                alert(`Kripya '${FOLDER_TYPES[key]}' ke liye kam se kam ek photo select/capture karein!`);
+                return;
+            }
+
+            const folderType = FOLDER_TYPES[key];
+            const dateTimeStr = getFormattedDateTimeForFile();
+            const submitBtn = document.getElementById(`submitBtn-${key}`);
+
+            submitBtn.disabled = true;
+            showStatus(`Uploading photos to <b>Export Pic / ${folderType}</b> folder... Kripya wait karein.`, 'loading');
+
+            try {
+                const filesData = [];
+                for (let i = 0; i < currentFiles.length; i++) {
+                    const item = currentFiles[i];
+                    const base64Content = await blobToBase64(item.blob);
+                    
+                    const catClean = folderType.replace(/\s+/g, '');
+                    
+                    filesData.push({
+                        fileName: `${identifierNo}_${catClean}_Pic_${i + 1}_${dateTimeStr}.jpg`,
+                        contentBytes: base64Content
+                    });
+                }
+
+                // Payload matched for individual flows
+                const payload = {
+                    vehicleNo: identifierNo,
+                    lotNo: key === 'lot' ? identifierNo : '',
+                    containerNo: key !== 'lot' ? identifierNo : '',
+                    files: filesData
+                };
+
+                const response = await fetch(targetWebhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showStatus(`✔ Success! Saari photos <b>Export Pic / ${folderType}</b> folder me upload ho gayi hain.`, 'success');
+                    fileStore[key] = [];
+                    renderPreviews(key);
+                } else {
+                    throw new Error(`Server response status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Upload Error:', error);
+                showStatus('❌ Upload fail ho gaya. Network connection check karein.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Initialize preview grids for all 4 screens
+        Object.keys(FOLDER_TYPES).forEach(key => renderPreviews(key));
+    </script>
+</body>
+</html>
