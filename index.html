@@ -1,22 +1,29 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Export Pic Dispatch System - 4 Categories</title>
-    <!-- Tailwind CSS for modern responsive styling -->
+    <title>NASA-Grade Dispatch Core</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                    },
                     colors: {
-                        msBlue: {
-                            DEFAULT: '#0078d4',
-                            hover: '#005a9e',
-                            light: '#e1effe',
-                            dark: '#004578'
+                        nasa: {
+                            blue: '#00d2ff',
+                            darkBg: '#070a13',
+                            panelBg: 'rgba(15, 23, 42, 0.75)',
+                            accent: '#00f0ff',
+                            amber: '#ffaa00',
+                            red: '#ff2a6d'
                         }
                     }
                 }
@@ -25,285 +32,369 @@
     </script>
     <style>
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-            background-color: #f3f2f1;
+            background-color: #050811;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
         }
-        .active-tab {
-            border-bottom: 3px solid #0078d4;
-            color: #0078d4;
-            font-weight: 700;
-            background-color: #ffffff;
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
         }
-        .tab-btn {
-            transition: all 0.2s ease-in-out;
+
+        .glass-panel {
+            background: rgba(13, 20, 36, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.1);
         }
-        .btn-touch {
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+
+        .active-nasa-tab {
+            background: linear-gradient(180deg, rgba(0, 210, 255, 0.25) 0%, rgba(0, 210, 255, 0.05) 100%);
+            border-bottom: 2px solid #00f0ff;
+            color: #00f0ff;
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+        }
+
+        .neon-btn {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0,210,255,0.2) 0%, rgba(0,100,255,0.4) 100%);
+            border: 1px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .neon-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .neon-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Scanline effect */
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.3;
         }
     </style>
 </head>
-<body class="min-h-screen pb-10 text-slate-800">
+<body class="min-h-screen pb-12">
 
-    <!-- Top Header -->
-    <header class="bg-msBlue text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-md md:max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Background Animated Particles -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-40 border-b border-nasa-blue/30">
+        <div class="max-w-md md:max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid font-bold text-xl md:text-2xl fa-truck-ramp-box"></i>
+                <div class="relative flex items-center justify-center w-10 h-10 rounded-lg bg-nasa-blue/20 border border-nasa-accent">
+                    <i class="fa-solid fa-atom text-nasa-accent text-xl animate-spin" style="animation-duration: 8s;"></i>
+                </div>
                 <div>
-                    <h1 class="font-semibold text-lg md:text-xl leading-tight">Despatch Export Dispatch</h1>
-                    <p class="text-xs text-blue-100 opacity-90">OneDrive Photo Management System</p>
+                    <h1 class="font-orbitron font-extrabold text-lg md:text-xl tracking-wider text-white flex items-center gap-2">
+                        EXPORT CORE
+                    </h1>
+                    <p class="text-[11px] text-nasa-blue/80 font-mono tracking-widest uppercase">OneDrive Quantum Telemetry System</p>
                 </div>
             </div>
-            <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full font-mono font-medium" id="currentDateBadge">--/--/----</span>
+            <div class="text-right font-mono">
+                <div class="text-xs text-nasa-accent font-bold" id="currentDateBadge">SYSTEM READY</div>
+                <div class="text-[10px] text-slate-400" id="liveClock">00:00:00 IST</div>
+            </div>
         </div>
 
-        <!-- 4-Screen Navigation Tabs -->
-        <div class="bg-slate-100 border-b border-slate-300 text-slate-600 text-xs md:text-sm font-medium">
-            <div class="max-w-md md:max-w-3xl mx-auto grid grid-cols-4 text-center cursor-pointer">
-                <button onclick="switchTab('lot')" id="tab-lot" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1 active-tab">
-                    <i class="fa-solid fa-boxes-stacked text-base"></i>
-                    <span class="truncate">Lot Pic</span>
+        <!-- Sci-Fi Navigation Tabs -->
+        <div class="border-t border-slate-800/80 bg-black/40">
+            <div class="max-w-md md:max-w-4xl mx-auto grid grid-cols-4 font-orbitron text-[11px] sm:text-xs">
+                <button onclick="switchTab('lot')" id="tab-lot" class="py-3 px-1 text-slate-400 hover:text-nasa-accent flex flex-col sm:flex-row items-center justify-center gap-1.5 active-nasa-tab transition-all">
+                    <i class="fa-solid fa-cubes text-sm"></i>
+                    <span class="truncate tracking-wider">LOT DATA</span>
                 </button>
-                <button onclick="switchTab('empty')" id="tab-empty" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1">
-                    <i class="fa-solid fa-box text-base"></i>
-                    <span class="truncate">Empty Container</span>
+                <button onclick="switchTab('empty')" id="tab-empty" class="py-3 px-1 text-slate-400 hover:text-nasa-accent flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-box-open text-sm"></i>
+                    <span class="truncate tracking-wider">EMPTY CNT</span>
                 </button>
-                <button onclick="switchTab('loaded')" id="tab-loaded" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1">
-                    <i class="fa-solid fa-truck-flatbed text-base"></i>
-                    <span class="truncate">Loaded Container</span>
+                <button onclick="switchTab('loaded')" id="tab-loaded" class="py-3 px-1 text-slate-400 hover:text-nasa-accent flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-truck-ramp-box text-sm"></i>
+                    <span class="truncate tracking-wider">LOADED CNT</span>
                 </button>
-                <button onclick="switchTab('gasket')" id="tab-gasket" class="tab-btn py-3 px-1 border-b-2 border-transparent hover:text-msBlue flex flex-col sm:flex-row items-center justify-center gap-1">
-                    <i class="fa-solid fa-shield-halved text-base"></i>
-                    <span class="truncate">Container Gasket</span>
+                <button onclick="switchTab('gasket')" id="tab-gasket" class="py-3 px-1 text-slate-400 hover:text-nasa-accent flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-shield-virus text-sm"></i>
+                    <span class="truncate tracking-wider">GASKET</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-md md:max-w-2xl mx-auto mt-4 px-4">
+    <main class="max-w-md md:max-w-3xl mx-auto mt-6 px-4">
         
-        <!-- Hidden Global File Inputs -->
+        <!-- Global Inputs -->
         <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
         <input type="file" id="galleryInput" multiple accept="image/*" class="hidden">
 
-        <!-- SCREEN 1: LOT PIC -->
+        <!-- LOT PIC MODULE -->
         <section id="screen-lot" class="tab-screen">
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                <div class="mb-4 pb-3 border-b border-slate-100">
-                    <label for="lotNo" class="block font-semibold text-slate-700 text-sm mb-1.5">
-                        <i class="fa-solid fa-boxes-stacked text-msBlue mr-1"></i> Lot Number (लॉट नंबर):
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+                <div class="scanline"></div>
+                <div class="mb-5 pb-3 border-b border-nasa-blue/20">
+                    <label for="lotNo" class="block font-orbitron text-xs font-semibold text-nasa-accent uppercase tracking-widest mb-2">
+                        <i class="fa-solid fa-microchip mr-1"></i> Target Lot Matrix ID:
                     </label>
-                    <input type="text" id="lotNo" placeholder="e.g. LOT-102938" 
-                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                    <input type="text" id="lotNo" placeholder="ENTER LOT NO (e.g. LOT-9081)" 
+                        oninput="this.value = sanitizeInput(this.value)"
+                        class="w-full px-4 py-3 bg-black/60 border border-nasa-blue/40 rounded-xl focus:border-nasa-accent focus:ring-1 focus:ring-nasa-accent outline-none text-nasa-accent font-mono text-base tracking-widest placeholder:text-slate-600 transition-all uppercase">
                 </div>
 
-                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3 mb-4">
                     <div class="flex items-center space-x-2">
-                        <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">1</span>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base">Lot Pic Upload</h2>
-                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-amber-800">Export Pic / Lot Pic</span></p>
-                        </div>
+                        <span class="w-2 h-2 rounded-full bg-nasa-accent animate-ping"></span>
+                        <h2 class="font-orbitron text-sm font-bold tracking-wider text-white">LOT IMAGE MATRIX</h2>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <button type="button" onclick="triggerCamera('lot')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-camera text-base"></i>
-                        <span>Take Camera Photo</span>
-                    </button>
-                    <button type="button" onclick="triggerGallery('lot')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-images text-base"></i>
-                        <span>Gallery Select</span>
+                    <button type="button" onclick="clearForm('lot')" class="text-xs text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1 bg-rose-950/40 border border-rose-800/40 px-2.5 py-1 rounded-md">
+                        <i class="fa-solid fa-power-off"></i> RESET
                     </button>
                 </div>
 
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
-                        <span id="photoCount-lot" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
-                    </div>
-                    <div id="previewGrid-lot" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
-                    </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <button type="button" onclick="triggerCamera('lot')" class="neon-btn py-3 px-4 rounded-xl text-white font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera-retro text-nasa-accent text-sm"></i>
+                        <span>CAPTURE CAM</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('lot')" class="bg-slate-900/80 border border-slate-700 hover:border-nasa-blue text-slate-300 hover:text-white py-3 px-4 rounded-xl font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-folder-open text-sm"></i>
+                        <span>FILE SYSTEM</span>
+                    </button>
                 </div>
 
-                <button type="button" onclick="uploadCategory('lot')" id="submitBtn-lot" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Upload to Lot Pic Folder</span>
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span class="text-slate-400 uppercase">Buffer Matrix (<span id="photoCount-lot">0</span> Frame)</span>
+                        <span id="photoSize-lot" class="text-nasa-accent">0 MB</span>
+                    </div>
+                    <div id="previewGrid-lot" class="grid grid-cols-3 sm:grid-cols-4 gap-3 min-h-[110px] bg-black/40 p-3 rounded-xl border border-slate-800"></div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('lot')" id="submitBtn-lot" class="neon-btn w-full py-4 rounded-xl text-white font-orbitron font-bold text-sm tracking-widest flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-satellite-dish" id="btnIcon-lot"></i>
+                    <span id="btnText-lot">INITIATE QUANTUM TRANSMISSION</span>
                 </button>
             </div>
         </section>
 
-        <!-- SCREEN 2: EMPTY CONTAINER PIC -->
+        <!-- EMPTY CONTAINER MODULE -->
         <section id="screen-empty" class="tab-screen hidden">
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                <div class="mb-4 pb-3 border-b border-slate-100">
-                    <label for="containerNo-empty" class="block font-semibold text-slate-700 text-sm mb-1.5">
-                        <i class="fa-solid fa-truck text-msBlue mr-1"></i> Container Number (कंटेनर नंबर):
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+                <div class="scanline"></div>
+                <div class="mb-5 pb-3 border-b border-nasa-blue/20">
+                    <label for="containerNo-empty" class="block font-orbitron text-xs font-semibold text-nasa-accent uppercase tracking-widest mb-2">
+                        <i class="fa-solid fa-truck-pickup mr-1"></i> Container Serial ID:
                     </label>
-                    <input type="text" id="containerNo-empty" placeholder="e.g. TRKU9876543 / RJ19GE1234" 
+                    <input type="text" id="containerNo-empty" placeholder="ENTER CONTAINER NO" 
                         oninput="syncContainerNo(this.value)"
-                        class="container-no-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                        class="container-no-input w-full px-4 py-3 bg-black/60 border border-nasa-blue/40 rounded-xl focus:border-nasa-accent outline-none text-nasa-accent font-mono text-base tracking-widest uppercase">
                 </div>
 
-                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3 mb-4">
                     <div class="flex items-center space-x-2">
-                        <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">2</span>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base">Empty Container Pic Upload</h2>
-                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-blue-800">Export Pic / Empty Container Pic</span></p>
-                        </div>
+                        <span class="w-2 h-2 rounded-full bg-nasa-accent animate-ping"></span>
+                        <h2 class="font-orbitron text-sm font-bold tracking-wider text-white">EMPTY CONTAINER FEED</h2>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <button type="button" onclick="triggerCamera('empty')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-camera text-base"></i>
-                        <span>Take Camera Photo</span>
-                    </button>
-                    <button type="button" onclick="triggerGallery('empty')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-images text-base"></i>
-                        <span>Gallery Select</span>
+                    <button type="button" onclick="clearForm('empty')" class="text-xs text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1 bg-rose-950/40 border border-rose-800/40 px-2.5 py-1 rounded-md">
+                        <i class="fa-solid fa-power-off"></i> RESET
                     </button>
                 </div>
 
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
-                        <span id="photoCount-empty" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
-                    </div>
-                    <div id="previewGrid-empty" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
-                    </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <button type="button" onclick="triggerCamera('empty')" class="neon-btn py-3 px-4 rounded-xl text-white font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera-retro text-nasa-accent text-sm"></i>
+                        <span>CAPTURE CAM</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('empty')" class="bg-slate-900/80 border border-slate-700 hover:border-nasa-blue text-slate-300 hover:text-white py-3 px-4 rounded-xl font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-folder-open text-sm"></i>
+                        <span>FILE SYSTEM</span>
+                    </button>
                 </div>
 
-                <button type="button" onclick="uploadCategory('empty')" id="submitBtn-empty" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Upload to Empty Container Folder</span>
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span class="text-slate-400 uppercase">Buffer Matrix (<span id="photoCount-empty">0</span> Frame)</span>
+                        <span id="photoSize-empty" class="text-nasa-accent">0 MB</span>
+                    </div>
+                    <div id="previewGrid-empty" class="grid grid-cols-3 sm:grid-cols-4 gap-3 min-h-[110px] bg-black/40 p-3 rounded-xl border border-slate-800"></div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('empty')" id="submitBtn-empty" class="neon-btn w-full py-4 rounded-xl text-white font-orbitron font-bold text-sm tracking-widest flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-satellite-dish" id="btnIcon-empty"></i>
+                    <span id="btnText-empty">INITIATE QUANTUM TRANSMISSION</span>
                 </button>
             </div>
         </section>
 
-        <!-- SCREEN 3: LOADED CONTAINER PIC -->
+        <!-- LOADED CONTAINER MODULE -->
         <section id="screen-loaded" class="tab-screen hidden">
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                <div class="mb-4 pb-3 border-b border-slate-100">
-                    <label for="containerNo-loaded" class="block font-semibold text-slate-700 text-sm mb-1.5">
-                        <i class="fa-solid fa-truck text-msBlue mr-1"></i> Container Number (कंटेनर नंबर):
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+                <div class="scanline"></div>
+                <div class="mb-5 pb-3 border-b border-nasa-blue/20">
+                    <label for="containerNo-loaded" class="block font-orbitron text-xs font-semibold text-nasa-accent uppercase tracking-widest mb-2">
+                        <i class="fa-solid fa-truck-pickup mr-1"></i> Container Serial ID:
                     </label>
-                    <input type="text" id="containerNo-loaded" placeholder="e.g. TRKU9876543 / RJ19GE1234" 
+                    <input type="text" id="containerNo-loaded" placeholder="ENTER CONTAINER NO" 
                         oninput="syncContainerNo(this.value)"
-                        class="container-no-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                        class="container-no-input w-full px-4 py-3 bg-black/60 border border-nasa-blue/40 rounded-xl focus:border-nasa-accent outline-none text-nasa-accent font-mono text-base tracking-widest uppercase">
                 </div>
 
-                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3 mb-4">
                     <div class="flex items-center space-x-2">
-                        <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">3</span>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base">Loaded Container Pic Upload</h2>
-                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-indigo-800">Export Pic / Loaded Container Pic</span></p>
-                        </div>
+                        <span class="w-2 h-2 rounded-full bg-nasa-accent animate-ping"></span>
+                        <h2 class="font-orbitron text-sm font-bold tracking-wider text-white">LOADED CONTAINER FEED</h2>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <button type="button" onclick="triggerCamera('loaded')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-camera text-base"></i>
-                        <span>Take Camera Photo</span>
-                    </button>
-                    <button type="button" onclick="triggerGallery('loaded')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-images text-base"></i>
-                        <span>Gallery Select</span>
+                    <button type="button" onclick="clearForm('loaded')" class="text-xs text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1 bg-rose-950/40 border border-rose-800/40 px-2.5 py-1 rounded-md">
+                        <i class="fa-solid fa-power-off"></i> RESET
                     </button>
                 </div>
 
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
-                        <span id="photoCount-loaded" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
-                    </div>
-                    <div id="previewGrid-loaded" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
-                    </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <button type="button" onclick="triggerCamera('loaded')" class="neon-btn py-3 px-4 rounded-xl text-white font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera-retro text-nasa-accent text-sm"></i>
+                        <span>CAPTURE CAM</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('loaded')" class="bg-slate-900/80 border border-slate-700 hover:border-nasa-blue text-slate-300 hover:text-white py-3 px-4 rounded-xl font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-folder-open text-sm"></i>
+                        <span>FILE SYSTEM</span>
+                    </button>
                 </div>
 
-                <button type="button" onclick="uploadCategory('loaded')" id="submitBtn-loaded" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Upload to Loaded Container Folder</span>
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span class="text-slate-400 uppercase">Buffer Matrix (<span id="photoCount-loaded">0</span> Frame)</span>
+                        <span id="photoSize-loaded" class="text-nasa-accent">0 MB</span>
+                    </div>
+                    <div id="previewGrid-loaded" class="grid grid-cols-3 sm:grid-cols-4 gap-3 min-h-[110px] bg-black/40 p-3 rounded-xl border border-slate-800"></div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('loaded')" id="submitBtn-loaded" class="neon-btn w-full py-4 rounded-xl text-white font-orbitron font-bold text-sm tracking-widest flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-satellite-dish" id="btnIcon-loaded"></i>
+                    <span id="btnText-loaded">INITIATE QUANTUM TRANSMISSION</span>
                 </button>
             </div>
         </section>
 
-        <!-- SCREEN 4: CONTAINER GASKET PIC -->
+        <!-- CONTAINER GASKET MODULE -->
         <section id="screen-gasket" class="tab-screen hidden">
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                <div class="mb-4 pb-3 border-b border-slate-100">
-                    <label for="containerNo-gasket" class="block font-semibold text-slate-700 text-sm mb-1.5">
-                        <i class="fa-solid fa-truck text-msBlue mr-1"></i> Container Number (कंटेनर नंबर):
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+                <div class="scanline"></div>
+                <div class="mb-5 pb-3 border-b border-nasa-blue/20">
+                    <label for="containerNo-gasket" class="block font-orbitron text-xs font-semibold text-nasa-accent uppercase tracking-widest mb-2">
+                        <i class="fa-solid fa-truck-pickup mr-1"></i> Container Serial ID:
                     </label>
-                    <input type="text" id="containerNo-gasket" placeholder="e.g. TRKU9876543 / RJ19GE1234" 
+                    <input type="text" id="containerNo-gasket" placeholder="ENTER CONTAINER NO" 
                         oninput="syncContainerNo(this.value)"
-                        class="container-no-input w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-msBlue focus:bg-white focus:outline-none uppercase text-base font-semibold text-slate-800 tracking-wide transition-all placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                        class="container-no-input w-full px-4 py-3 bg-black/60 border border-nasa-blue/40 rounded-xl focus:border-nasa-accent outline-none text-nasa-accent font-mono text-base tracking-widest uppercase">
                 </div>
 
-                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3 mb-4">
                     <div class="flex items-center space-x-2">
-                        <span class="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm">4</span>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base">Container Gasket Pic Upload</h2>
-                            <p class="text-xs text-slate-500">Folder: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-teal-800">Export Pic / Container Gasket Pic</span></p>
-                        </div>
+                        <span class="w-2 h-2 rounded-full bg-nasa-accent animate-ping"></span>
+                        <h2 class="font-orbitron text-sm font-bold tracking-wider text-white">SEAL / GASKET TELEMETRY</h2>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <button type="button" onclick="triggerCamera('gasket')" class="btn-touch w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-camera text-base"></i>
-                        <span>Take Camera Photo</span>
-                    </button>
-                    <button type="button" onclick="triggerGallery('gasket')" class="btn-touch w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-msBlue border border-msBlue/30 font-medium text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-images text-base"></i>
-                        <span>Gallery Select</span>
+                    <button type="button" onclick="clearForm('gasket')" class="text-xs text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1 bg-rose-950/40 border border-rose-800/40 px-2.5 py-1 rounded-md">
+                        <i class="fa-solid fa-power-off"></i> RESET
                     </button>
                 </div>
 
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Selected Images</span>
-                        <span id="photoCount-gasket" class="text-xs font-semibold text-msBlue bg-blue-50 px-2 py-1 rounded-md">0 Photos (0 MB)</span>
-                    </div>
-                    <div id="previewGrid-gasket" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 min-h-[90px] bg-slate-50 p-3 rounded-lg border border-dashed border-slate-300">
-                    </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <button type="button" onclick="triggerCamera('gasket')" class="neon-btn py-3 px-4 rounded-xl text-white font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera-retro text-nasa-accent text-sm"></i>
+                        <span>CAPTURE CAM</span>
+                    </button>
+                    <button type="button" onclick="triggerGallery('gasket')" class="bg-slate-900/80 border border-slate-700 hover:border-nasa-blue text-slate-300 hover:text-white py-3 px-4 rounded-xl font-orbitron font-semibold text-xs tracking-wider flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-folder-open text-sm"></i>
+                        <span>FILE SYSTEM</span>
+                    </button>
                 </div>
 
-                <button type="button" onclick="uploadCategory('gasket')" id="submitBtn-gasket" class="btn-touch w-full py-3.5 bg-msBlue hover:bg-msBlue-hover text-white font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Upload to Gasket Folder</span>
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span class="text-slate-400 uppercase">Buffer Matrix (<span id="photoCount-gasket">0</span> Frame)</span>
+                        <span id="photoSize-gasket" class="text-nasa-accent">0 MB</span>
+                    </div>
+                    <div id="previewGrid-gasket" class="grid grid-cols-3 sm:grid-cols-4 gap-3 min-h-[110px] bg-black/40 p-3 rounded-xl border border-slate-800"></div>
+                </div>
+
+                <button type="button" onclick="uploadCategory('gasket')" id="submitBtn-gasket" class="neon-btn w-full py-4 rounded-xl text-white font-orbitron font-bold text-sm tracking-widest flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-satellite-dish" id="btnIcon-gasket"></i>
+                    <span id="btnText-gasket">INITIATE QUANTUM TRANSMISSION</span>
                 </button>
             </div>
         </section>
 
-        <!-- Status Message Alert Box -->
-        <div id="statusMessage" class="hidden mt-4 p-4 rounded-xl text-sm font-medium transition-all shadow-md"></div>
+        <!-- Status Console Alert -->
+        <div id="statusMessage" class="hidden mt-4 p-4 rounded-xl font-mono text-xs border transition-all shadow-lg backdrop-blur-md"></div>
 
     </main>
 
     <script>
-        // Dedicated Webhook URLs for 4 Separate Power Automate Flows
+        // Webhook URLs
         const WEBHOOK_URLS = {
             'lot': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/12/workflows/bd269a4140c941afb3c5161741aa6acc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Y2GLVqrjxvNXGqnxLQz_pvo9i_hM51FDlLrY82kpm_Q",
             'empty': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/26/workflows/19f5740b6caa43bd87d2ec8857429157/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=dwMjbqODAZ7l8jwU0rFB729vZnE11yQB2ZVJ44gPbcM",
-            'loaded': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/19/workflows/922d3c76ffc74d61914b765ff74365cb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LeaWHNLRnW0JdX9fvPTmIdIHclBa4E3_daPpoZuX3Ro",  // Flow 3 ka URL yahan paste karein
-            'gasket': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/331defa6578a404382985ca428dce473/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Fq5eC1UZGbxkIwfpruSBnd7fGB7_gmmokpNxiVVvF1Y"   // Flow 4 ka URL yahan paste karein
+            'loaded': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/19/workflows/922d3c76ffc74d61914b765ff74365cb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LeaWHNLRnW0JdX9fvPTmIdIHclBa4E3_daPpoZuX3Ro",
+            'gasket': "https://default5b4308bc4f164e8daab026cc3b6f4b.ec.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/331defa6578a404382985ca428dce473/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Fq5eC1UZGbxkIwfpruSBnd7fGB7_gmmokpNxiVVvF1Y"
         };
 
-        // Sync Container Number input across screens 2, 3, 4
+        // Synthesize Sci-Fi Sound FX using Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSciFiSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+                }
+            } catch(e){}
+        }
+
+        function sanitizeInput(val) {
+            return val.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+        }
+
         function syncContainerNo(val) {
+            const cleanVal = sanitizeInput(val);
             document.querySelectorAll('.container-no-input').forEach(input => {
-                input.value = val.toUpperCase();
+                input.value = cleanVal;
             });
         }
 
-        // Map key names to OneDrive exact folder names
         const FOLDER_TYPES = {
             'lot': 'Lot Pic',
             'empty': 'Empty Container Pic',
@@ -311,65 +402,50 @@
             'gasket': 'Container Gasket Pic'
         };
 
-        // File State Store per Category Screen
-        const fileStore = {
-            'lot': [],
-            'empty': [],
-            'loaded': [],
-            'gasket': []
-        };
-
+        const fileStore = { 'lot': [], 'empty': [], 'loaded': [], 'gasket': [] };
         let activeCategoryKey = 'lot';
 
-        // DOM Inputs
         const cameraInput = document.getElementById('cameraInput');
         const galleryInput = document.getElementById('galleryInput');
         const statusMessage = document.getElementById('statusMessage');
 
-        function getFormattedDate() {
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-            return `${dd}-${mm}-${yyyy}`;
-        }
-
-        function getFormattedDateTimeForFile() {
+        // Clock & Date Initialization (Indian Standard Time - IST)
+        function updateClock() {
             const now = new Date();
-            const dd = String(now.getDate()).padStart(2, '0');
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const yyyy = now.getFullYear();
-            const hh = String(now.getHours()).padStart(2, '0');
-            const min = String(now.getMinutes()).padStart(2, '0');
-            return `${dd}-${mm}-${yyyy}_${hh}-${min}`;
-        }
-
-        // Set Date Badge on Header Load
-        document.getElementById('currentDateBadge').innerText = getFormattedDate();
-
-        // Screen Tab Switcher
-        function switchTab(key) {
-            activeCategoryKey = key;
+            const timeString = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
+            const dateString = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
             
+            document.getElementById('liveClock').innerText = timeString + ' IST';
+            document.getElementById('currentDateBadge').innerText = dateString;
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        function switchTab(key) {
+            playSciFiSound('click');
+            activeCategoryKey = key;
             document.querySelectorAll('.tab-screen').forEach(sec => sec.classList.add('hidden'));
             document.getElementById(`screen-${key}`).classList.remove('hidden');
 
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
-            document.getElementById(`tab-${key}`).classList.add('active-tab');
+            document.querySelectorAll('.tab-screen button').forEach(b => b.classList.remove('active-nasa-tab'));
+            document.querySelectorAll(`[id^='tab-']`).forEach(btn => btn.classList.remove('active-nasa-tab'));
+            document.getElementById(`tab-${key}`).classList.add('active-nasa-tab');
 
             hideStatus();
         }
 
         function triggerCamera(key) {
+            playSciFiSound('click');
             activeCategoryKey = key;
             cameraInput.click();
         }
 
         function triggerGallery(key) {
+            playSciFiSound('click');
             activeCategoryKey = key;
             galleryInput.click();
         }
 
+        // Image Processing pipeline (~500KB limit)
         async function processTo500KB(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -401,14 +477,10 @@
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        let minQuality = 0.5;
-                        let maxQuality = 0.95;
                         let targetQuality = 0.88;
                         let bestBlob = null;
 
-                        const generateBlob = (q) => {
-                            return new Promise(res => canvas.toBlob(res, 'image/jpeg', q));
-                        };
+                        const generateBlob = (q) => new Promise(res => canvas.toBlob(res, 'image/jpeg', q));
 
                         (async () => {
                             for (let i = 0; i < 4; i++) {
@@ -416,19 +488,15 @@
                                 bestBlob = blob;
                                 let sizeKB = blob.size / 1024;
 
-                                if (sizeKB > 550) {
-                                    maxQuality = targetQuality;
-                                    targetQuality = (minQuality + maxQuality) / 2;
-                                } else if (sizeKB < 450 && targetQuality < 0.95) {
-                                    minQuality = targetQuality;
-                                    targetQuality = (minQuality + maxQuality) / 2;
-                                } else {
-                                    break;
-                                }
+                                if (sizeKB > 550) targetQuality *= 0.85;
+                                else if (sizeKB < 400 && targetQuality < 0.92) targetQuality *= 1.1;
+                                else break;
                             }
 
                             let finalSizeKB = Math.round(bestBlob.size / 1024);
                             let previewUrl = URL.createObjectURL(bestBlob);
+
+                            canvas.width = 0; canvas.height = 0; canvas = null;
                             resolve({ blob: bestBlob, sizeKB: finalSizeKB, previewUrl });
                         })();
                     };
@@ -436,10 +504,9 @@
             });
         }
 
-        // Camera Input Event
         cameraInput.addEventListener('change', async (e) => {
             if (e.target.files.length > 0) {
-                showStatus('Photo ~500KB me optimize ho rahi hai...', 'loading');
+                showStatus('OPTIMIZING IMAGE FREQUENCY MATRIX...', 'loading');
                 const processed = await processTo500KB(e.target.files[0]);
                 fileStore[activeCategoryKey].push(processed);
                 renderPreviews(activeCategoryKey);
@@ -448,11 +515,10 @@
             }
         });
 
-        // Gallery Input Event
         galleryInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
-                showStatus('Photos ~500KB me optimize ho rahi hain...', 'loading');
+                showStatus('OPTIMIZING MULTI-ARRAY FILES...', 'loading');
                 for (let file of files) {
                     if (file.type.startsWith('image/')) {
                         const processed = await processTo500KB(file);
@@ -467,20 +533,21 @@
 
         function renderPreviews(key) {
             const grid = document.getElementById(`previewGrid-${key}`);
-            const countBadge = document.getElementById(`photoCount-${key}`);
+            const countEl = document.getElementById(`photoCount-${key}`);
+            const sizeEl = document.getElementById(`photoSize-${key}`);
             const list = fileStore[key];
 
             grid.innerHTML = '';
-
             let totalKB = list.reduce((acc, curr) => acc + curr.sizeKB, 0);
             let totalMB = (totalKB / 1024).toFixed(2);
 
-            countBadge.innerText = `${list.length} Photos (~${totalMB} MB Total)`;
+            countEl.innerText = list.length;
+            sizeEl.innerText = `${totalMB} MB`;
 
             if (list.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-4 text-center text-slate-400 text-xs">
-                        No photos captured yet. Click Camera or Gallery button above.
+                    <div class="col-span-full py-6 text-center text-slate-600 font-mono text-xs tracking-wider">
+                        NO OPTICAL DATA IN BUFFER
                     </div>
                 `;
                 return;
@@ -488,12 +555,12 @@
 
             list.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = 'relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-white shadow-xs';
+                div.className = 'relative group aspect-square rounded-lg overflow-hidden border border-nasa-blue/40 bg-black/60 shadow-md';
                 div.innerHTML = `
                     <img src="${item.previewUrl}" class="w-full h-full object-cover">
-                    <span class="absolute bottom-1 left-1 bg-black/75 text-white text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">${item.sizeKB} KB</span>
+                    <span class="absolute bottom-1 left-1 bg-black/80 text-nasa-accent text-[9px] px-1 py-0.5 rounded font-mono">${item.sizeKB} KB</span>
                     <button type="button" onclick="removeFile('${key}', ${index})" 
-                        class="absolute top-1 right-1 bg-red-600/90 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md">
+                        class="absolute top-1 right-1 bg-rose-600/80 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
                         ✕
                     </button>
                 `;
@@ -502,18 +569,28 @@
         }
 
         function removeFile(key, index) {
+            playSciFiSound('click');
             fileStore[key].splice(index, 1);
             renderPreviews(key);
         }
 
+        function clearForm(key) {
+            playSciFiSound('click');
+            fileStore[key] = [];
+            renderPreviews(key);
+            if (key === 'lot') document.getElementById('lotNo').value = '';
+            else syncContainerNo('');
+            hideStatus();
+        }
+
         function showStatus(message, type) {
-            statusMessage.className = 'mt-4 p-4 rounded-xl text-sm font-medium transition-all shadow-md ';
+            statusMessage.className = 'mt-4 p-4 rounded-xl font-mono text-xs border transition-all shadow-lg backdrop-blur-md ';
             if (type === 'success') {
-                statusMessage.className += 'bg-emerald-50 border border-emerald-300 text-emerald-800';
+                statusMessage.className += 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300';
             } else if (type === 'error') {
-                statusMessage.className += 'bg-rose-50 border border-rose-300 text-rose-800';
+                statusMessage.className += 'bg-rose-950/60 border-rose-500/50 text-rose-300';
             } else {
-                statusMessage.className += 'bg-sky-50 border border-sky-300 text-sky-800 animate-pulse';
+                statusMessage.className += 'bg-cyan-950/60 border-cyan-500/50 text-cyan-300 animate-pulse';
             }
             statusMessage.innerHTML = message;
             statusMessage.classList.remove('hidden');
@@ -533,51 +610,47 @@
         }
 
         async function uploadCategory(key) {
+            playSciFiSound('click');
             const targetWebhookUrl = WEBHOOK_URLS[key];
 
             if (!targetWebhookUrl) {
-                alert(`Is screen ('${FOLDER_TYPES[key]}') ka Flow Webhook URL add nahi kiya gaya hai! Kripya code me URL enter karein.`);
+                alert(`WEBHOOK LINK NOT CONFIGURED FOR '${FOLDER_TYPES[key]}'`);
                 return;
             }
 
-            let identifierNo = "";
+            let identifierNo = key === 'lot' ? sanitizeInput(document.getElementById('lotNo').value) : sanitizeInput(document.getElementById(`containerNo-${key}`).value);
 
-            if (key === 'lot') {
-                identifierNo = document.getElementById('lotNo').value.trim().toUpperCase();
-                if (!identifierNo) {
-                    alert('Kripya Lot Number enter karein!');
-                    document.getElementById('lotNo').focus();
-                    return;
-                }
-            } else {
-                identifierNo = document.getElementById(`containerNo-${key}`).value.trim().toUpperCase();
-                if (!identifierNo) {
-                    alert('Kripya Container Number enter karein!');
-                    document.getElementById(`containerNo-${key}`).focus();
-                    return;
-                }
+            if (!identifierNo) {
+                alert(`SPECIFY A VALID ${key === 'lot' ? 'LOT' : 'CONTAINER'} ID!`);
+                return;
             }
 
             const currentFiles = fileStore[key];
-
             if (currentFiles.length === 0) {
-                alert(`Kripya '${FOLDER_TYPES[key]}' ke liye kam se kam ek photo select/capture karein!`);
+                alert(`CAPTURE AT LEAST 1 IMAGE FOR TRANSMISSION`);
                 return;
             }
 
             const folderType = FOLDER_TYPES[key];
-            const dateTimeStr = getFormattedDateTimeForFile();
+            const now = new Date();
+            const dateIST = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+            const timeIST = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false }).replace(/:/g, '-');
+            const dateTimeStr = `${dateIST}_${timeIST}`;
+
             const submitBtn = document.getElementById(`submitBtn-${key}`);
+            const btnIcon = document.getElementById(`btnIcon-${key}`);
+            const btnText = document.getElementById(`btnText-${key}`);
 
             submitBtn.disabled = true;
-            showStatus(`Uploading photos to <b>Export Pic / ${folderType}</b> folder... Kripya wait karein.`, 'loading');
+            btnIcon.className = "fa-solid fa-atom fa-spin text-nasa-accent";
+            btnText.innerText = "UPLOADING TO QUANTUM NODE...";
+            showStatus(`TRANSMITTING DATA PACKETS TO <b>Export Pic / ${folderType}</b>...`, 'loading');
 
             try {
                 const filesData = [];
                 for (let i = 0; i < currentFiles.length; i++) {
                     const item = currentFiles[i];
                     const base64Content = await blobToBase64(item.blob);
-                    
                     const catClean = folderType.replace(/\s+/g, '');
                     
                     filesData.push({
@@ -586,9 +659,8 @@
                     });
                 }
 
-                // Payload matched for individual flows
                 const payload = {
-                    vehicleNo: identifierNo,
+                    category: folderType,
                     lotNo: key === 'lot' ? identifierNo : '',
                     containerNo: key !== 'lot' ? identifierNo : '',
                     files: filesData
@@ -601,21 +673,76 @@
                 });
 
                 if (response.ok) {
-                    showStatus(`✔ Success! Saari photos <b>Export Pic / ${folderType}</b> folder me upload ho gayi hain.`, 'success');
+                    playSciFiSound('success');
+                    showStatus(`✔ QUANTUM TRANSMISSION COMPLETE. Saved to <b>Export Pic / ${folderType}</b>.`, 'success');
                     fileStore[key] = [];
                     renderPreviews(key);
                 } else {
-                    throw new Error(`Server response status: ${response.status}`);
+                    throw new Error(`Satellite response error code: ${response.status}`);
                 }
             } catch (error) {
-                console.error('Upload Error:', error);
-                showStatus('❌ Upload fail ho gaya. Network connection check karein.', 'error');
+                console.error('Transmission Error:', error);
+                showStatus('❌ TRANSMISSION FAILED. QUANTUM LINK TIMEOUT.', 'error');
             } finally {
                 submitBtn.disabled = false;
+                btnIcon.className = "fa-solid fa-satellite-dish";
+                btnText.innerText = "INITIATE QUANTUM TRANSMISSION";
             }
         }
 
-        // Initialize preview grids for all 4 screens
+        // Initialize Background Particle Grid Canvas
+        (function initParticles() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let pts = [];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            for(let i=0; i<45; i++) {
+                pts.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+
+            function loop() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = 'rgba(0, 210, 255, 0.4)';
+                ctx.strokeStyle = 'rgba(0, 210, 255, 0.08)';
+
+                pts.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy;
+                    if(p.x<0||p.x>canvas.width) p.vx*=-1;
+                    if(p.y<0||p.y>canvas.height) p.vy*=-1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
+                    ctx.fill();
+
+                    for(let j=i+1; j<pts.length; j++) {
+                        let p2 = pts[j];
+                        let dist = Math.hypot(p.x-p2.x, p.y-p2.y);
+                        if(dist < 130) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    }
+                });
+                requestAnimationFrame(loop);
+            }
+            loop();
+        })();
+
+        // Init Previews
         Object.keys(FOLDER_TYPES).forEach(key => renderPreviews(key));
     </script>
 </body>
